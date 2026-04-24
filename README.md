@@ -1,20 +1,18 @@
 # NTA Local Authorities Chat Agent
 
-A Hebrew chat bot for Israel's 24 partner municipalities to reach the right NTA (Netivei Ayalon) division — without hunting through contact lists. Demo runs on Telegram; Phase 2 flips to WhatsApp.
+A Hebrew digital assistant for Israel's 24 partner municipalities to reach the right NTA (Netivei Ayalon) division — without hunting through contact lists. Demo runs on Telegram; Phase 2 flips to WhatsApp.
 
 Built as a Base44 Superagent configuration bundle.
 
 ## What it does
 
-A rep from a partner city opens the bot, picks one of 7 topics, and gets back a verified NTA contact card (name, role, phone, email). For site-specific topics, the bot shows a city map, the user taps a site number, and the bot returns the right division for *that* site.
-
-That's it. No small talk, no LLM-generated answers, no "I think you meant…". It's a router with a chat skin.
+A rep from a partner city opens the bot, either **types what they need in free-text Hebrew** ("אני צריך לדבר עם מישהו על מיגון אקוסטי") or taps one of the 7 menu topics. The bot understands either, answers briefly from documented NTA procedures when relevant, and returns a verified contact card (name, role, phone, email) pulled verbatim from Hila's Excel file. For site-specific topics, the bot sends a city map, the user specifies a site number, and the bot returns the right division for *that* site.
 
 ## Why it's built this way
 
-Hila (head of Local Authorities at NTA) currently acts as a human switchboard — reps call her, she routes them. This bot does the same thing, 24/7, but only for the 7 topics she actually routes. Anything outside those 7 topics drops back to Hila.
+Hila (head of Local Authorities at NTA) currently acts as a human switchboard — reps call her, she routes them. This bot does the same thing, 24/7, feeling like an assistant instead of a form.
 
-The key design choice: **the LLM never improvises.** Every response is either pulled verbatim from Hila's Excel contacts file or from a pre-written Hebrew menu file. If the Excel lookup fails, the bot falls back to Hila's row — never a made-up phone number.
+The key design tension: **natural conversation + hard grounding.** The bot speaks warmly and understands free-text Hebrew, but it NEVER invents contact details. Every name, phone, and email comes verbatim from Hila's Excel. Every procedural fact comes verbatim from NTA's PE-100 and PE-060 documents (stored in `docs/nta-procedures.md`). Anything outside that drops back to Hila.
 
 ## The 7 topics
 
@@ -33,15 +31,18 @@ Topics 1 and 2 show a city map and ask for a site number. Topics 3–7 go straig
 ```
 /start
   ↓
-Phase 1: session-init      → allowlist check, greet by name, show 7-button menu
+Phase 1: session-init      → allowlist check (open by default), greet by name,
+                             invite free text + show 7-button menu as starting point
   ↓
-Phase 2: route-user        → parse selection (1-7), set flow state
+Phase 2: route-user        → classify intent (menu tap, site number, free-text
+                             Hebrew, procedural question), set flow state
   ↓
-Phase 3: show-map          → (topics 1-2 only) send city map, parse site number
+Phase 3: show-map          → (site-specific topics) send city map, parse site number
   ↓
 Phase 4: lookup-contact    → Excel row → formatted contact card
   ↓
-Phase 5: handle-unknown    → catches anything off-script, re-prompts to menu
+Phase 5: handle-unknown    → graceful redirect for edge cases (non-text messages,
+                             out-of-scope questions, confused users)
 ```
 
 Phases 1–5 live as skills under `skills/`. Each is one `SKILL.md` file — no code.

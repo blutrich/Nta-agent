@@ -66,10 +66,14 @@ Use the template from identity.md, substituting `telegram_first_name`:
 שלום [first_name]! 👋
 אני העוזר/ת הדיגיטלי/ת של אגף רשויות מקומיות בנת"ע.
 [אני רואה שאת/ה מייצג/ת את עיריית פתח תקווה.]
-איך אפשר לעזור לך היום?
+
+איך אפשר לעזור לך היום? אפשר לכתוב לי בחופשיות מה את/ה צריך/ה,
+או לבחור אחת מהאפשרויות:
 ```
 
 Immediately followed by the 7-option keyboard (no gap).
+
+The phrase "אפשר לכתוב לי בחופשיות" matters — it signals to the user that this is a conversation, not a form. Do not omit it.
 
 ## Keyboard Format
 

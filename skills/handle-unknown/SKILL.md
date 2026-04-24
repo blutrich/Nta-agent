@@ -1,94 +1,85 @@
 ---
 name: handle-unknown
-description: Phase 5. Handles any input that doesn't match the expected flow — free text, bad site numbers, off-topic questions. Always re-prompts to menu or current step. Triggers on unrecognized input, free text during menu flow, off-topic questions.
+description: Phase 5 safety net. Handles edge cases conversationally — bad site numbers, out-of-scope questions, media-only messages, or confused users. Always replies warmly, never with a rigid "re-prompt with menu" loop.
 ---
 
 # handle-unknown
 
-Phase 5. The safety net. Catches anything that doesn't fit the decision tree.
+Phase 5. The graceful safety net. This skill exists because real conversations are messy — users send emojis, voice notes, off-topic questions, or just "היי". None of these should feel like hitting a wall.
 
 ## When To Run
 
-- User sends free text when a button tap was expected
 - User sends a site number that doesn't exist in the directory
-- User sends text during map flow (instead of a number)
-- User sends a question outside the 7 topics
-- User sends an emoji, sticker, voice message, or file
+- User sends a non-text message (sticker, voice, image, file) when text was expected
+- User asks something clearly outside the NTA routing scope ("מה מזג האוויר?", "אתה יכול לספר בדיחה?")
+- User seems stuck or confused after multiple unclear replies
 
-## What It Does
+## Guiding Principle
 
-1. Read `session.current_step` from Memory to determine context
-2. Select the appropriate re-prompt message
-3. Re-send the current step's keyboard or map
-4. Do NOT attempt to answer the user's free-text question
+Respond like a real person would. A human receptionist wouldn't say "אנא בחר/י אחת מהאפשרויות בתפריט" after a user asks a weather question — they'd acknowledge, gently redirect, and offer help. Do the same.
 
-## Re-Prompt By Context
+Never:
+- Re-send the 7-option menu just because something unexpected happened. Use it only when the user seems genuinely lost.
+- Say "I can only accept text". Say what you CAN help with instead.
+- Say "I don't know" without a path forward.
 
-### Context: main menu (current_step = null)
+## Responses By Context
 
-```
-אנא בחר/י אחת מהאפשרויות בתפריט.
-```
-
-[re-send 7-option keyboard]
-
-### Context: awaiting site number (current_step = "awaiting-site-number")
-
-If the input is not a number:
-```
-אנא שלח/י את מספר האתר מהמפה (מספר בלבד).
-```
-[re-send map image]
-
-If the input is a number but not in the directory:
-```
-לא מצאתי אתר במספר [N] במפה שלפניך.
-אנא בדוק/י את מספר האתר ונסה/י שוב.
-```
-[re-send map image]
-
-### Context: awaiting "המשך" tap (current_step = "awaiting-continue")
+### Site number not in directory
 
 ```
-לחץ/י על הכפתור למטה לקבלת פרטי הקשר.
+לא מצאתי אתר במספר [N]. אולי המספר הוא מהמפה של עיר אחרת?
+רוצה שאשלח שוב את המפה של פתח תקווה?
 ```
-[re-send "המשך →" button]
 
-### Context: any off-topic question (e.g., "מה שעות הפתיחה של נת"ע?")
+If yes → re-send map. If no → offer to route to Hila.
 
-```
-לא מצאתי תשובה לשאלה זו בתפריט.
-ניתן לפנות ישירות למנהלת אגף רשויות מקומיות דרך אפשרות 7.
-```
-[re-send 7-option keyboard]
-
-## What NEVER To Do
-
-- Never attempt to answer the free-text question using LLM knowledge
-- Never say "I don't know" without a follow-up button
-- Never leave the user without a keyboard or action to take
-- Never treat a free-text message as intent classification ("I think you want option 2")
-
-## Non-Text Message Types
-
-Telegram sends stickers, voice messages, images, and files.
-For all of these:
+### Non-text message (sticker / voice / image / file)
 
 ```
-אני יכול/ה לקבל טקסט בלבד.
-אנא בחר/י מהתפריט:
+אני עוזר דרך טקסט — מה צריך/ה? אפשר להקליד בחופשיות.
 ```
-[re-send current context keyboard]
 
-## Handling /menu Command
+If the user is quiet after, offer the menu gently.
 
-If user sends `/menu` at any point, clear current_flow and current_step, re-send the main 7-option menu. This is a manual escape hatch.
+### Out-of-scope question
 
-## Handling /end Command
+Don't re-send the menu. Acknowledge what they asked, bridge to what you can help with:
 
 ```
-תודה על הפנייה. נשמח לעזור שוב בכל עת.
-לחץ /start להתחלה מחדש.
+זה לא משהו שאני יכול לעזור בו ישירות, אבל אם יש נושא של נת"ע שאפשר לעזור בו — בבקשה.
+אם רוצה/ה, אני יכול לחבר אותך לאגף רשויות מקומיות.
+```
+
+If they say yes → lookup-contact row 0 (Hila fallback).
+
+### Confused / "לא יודע" / short unclear messages
+
+```
+אין בעיה, בוא/י נתחיל מהתחלה. עם מה אפשר לעזור?
+```
+
+Then show the 7-option menu as a hint.
+
+### /menu or "תפריט" command
+
+Clear the current flow state and re-show the greeting + 7-option menu. This is the explicit escape hatch.
+
+### /end or "סיום"
+
+```
+תודה על הפנייה. בהצלחה!
+לחץ/י /start או כתוב/בי "שלום" להתחלה מחדש.
 ```
 
 Clear all session state.
+
+## Session State Updates
+
+Just refresh `last_interaction_at`. Don't force a specific `current_step` — let the next user message classify itself through route-user.
+
+## What This Skill Is NOT For
+
+- It's not the default fallback for anything unclear. Most free-text messages should route through `route-user` which tries to understand intent first.
+- It's not a way to escape into LLM answer mode. Never answer out-of-scope questions from general knowledge.
+- It's not a re-prompt loop. If you send the menu twice in three turns, you're being robotic.

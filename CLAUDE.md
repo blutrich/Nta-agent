@@ -4,9 +4,9 @@ Project memory for any AI agent (Claude, Base44 Superagent, etc.) working with t
 
 ## What This Repo Is
 
-A Base44 Superagent configuration bundle that turns a new Superagent into the **NTA Local Authorities Chat Agent** — a deterministic routing assistant for representatives from Israel's 24 partner municipalities. The agent runs on Telegram for the v0.1 demo, and can be flipped to WhatsApp in Phase 2 via a single channel setting.
+A Base44 Superagent configuration bundle that turns a new Superagent into the **NTA Local Authorities Chat Agent** — a Hebrew-speaking digital assistant for representatives from Israel's 24 partner municipalities. The agent runs on Telegram for the v0.1 demo, and can be flipped to WhatsApp in Phase 2 via a single channel setting.
 
-**This is not a conversational AI agent. It is a state machine with a chat skin.** The Superagent's LLM is intentionally constrained to follow a closed decision tree. Every response comes from the contacts Excel file or a pre-written menu-flows file. The LLM never improvises.
+**The agent is a conversational assistant with hard grounding rules.** Users can ask in free-text Hebrew ("מי אחראי על מיגון אקוסטי?") or tap one of the 7 menu buttons. Either way, the agent classifies intent, optionally answers briefly from documented procedures (`docs/nta-procedures.md`), and returns a contact card pulled verbatim from `contacts.xlsx`. The LLM can phrase its responses naturally — it **cannot** invent contact details, speculate on timelines, or answer questions outside NTA routing scope.
 
 ## Core Concept: The 5-Phase Flow
 
@@ -51,20 +51,22 @@ nta-agent/
 
 ## Critical Design Rules
 
-### 1. Deterministic over Intelligent
+### 1. Conversational Tone, Hard Grounding
 
-The agent NEVER invents answers. It is a router, not an advisor. If the Excel row is missing, it falls back to Hila's contact (row 2). If the user's input doesn't match anything, it re-prompts with the menu.
+The agent speaks naturally in Hebrew — it can acknowledge, bridge, and respond to free-text requests. What it CANNOT do is invent grounding data.
 
 **Never:**
-- Generate contact names, phone numbers, or emails from LLM knowledge
-- Speculate about NTA project timelines or policy
-- Answer questions outside the 7 menu topics
-- Add helpful commentary to contact cards ("this division is very responsive")
+- Generate contact names, phone numbers, or emails from LLM knowledge — always read from `contacts.xlsx`
+- Speculate about NTA project timelines, approvals, or apartment-specific eligibility
+- Answer procedural questions beyond what's documented in `docs/nta-procedures.md` (PE-100, PE-060)
+- Add unfounded commentary to contact cards ("this division is very responsive")
+- Mechanically re-send the 7-option menu on every free-text message — that feels like a broken phone tree
 
 **Always:**
 - Pull contact info verbatim from the Excel knowledge file
-- Return to the main menu after every completed interaction
-- Address the user by their Telegram first name throughout the session
+- Offer an open next step after a contact card delivery
+- Address the user by their Telegram first name on greeting (not every turn)
+- Route out-of-scope questions gracefully to Hila — don't answer them from LLM knowledge
 
 ### 2. Allowlist Is The Gate (Demo Grade)
 
@@ -238,12 +240,13 @@ Update `rules/allowlist.md` PERMITTED_TELEGRAM_IDS list, then re-write to `.agen
 
 These are decisions Ofer has made in conversation. Future agents working on this repo should preserve them unless explicitly told to change them.
 
+- **2026-04-25: Shift from deterministic router to conversational assistant.** After the first install, Ofer's feedback was "the experience is not fun, it feels like a CS bot". Soul.md, identity.md, and the skills were rewritten to handle free-text Hebrew requests naturally. The 7-option menu is still presented on greeting as a starting point, but it's no longer the only input mode. Hard grounding rules (never invent contacts, only cite documented procedures) are preserved.
+- **2026-04-25: Allowlist defaults to OPEN_MODE: true for demo.** The bot lets anyone in by default. Closed mode is preserved as a toggle for post-demo lockdown.
 - **2026-04-24: Excel schema is positional, not header-based.** The real contacts.xlsx has no headers — columns are A=name, B=division, C=role, D=email, E=phone. lookup-contact reads by 0-indexed position.
-- **2026-04-24: Hila is row 1, not row 2.** The fallback contact reference was updated everywhere when the real Excel arrived. Older drafts said row 2 — those are stale.
+- **2026-04-24: Fallback is row index 0 of the actual Excel.** Earlier drafts hardcoded "row 1 = Hila" or "row 2 = Hila" but the real Excel varies. Fallback reads whoever is at row index 0.
 - **2026-04-24: Topics 4 and 5 temporarily route to row 3 (Zohara Yishai).** Per `docs/nta-procedures.md`. Hila to confirm dedicated contacts before Phase 2.
 - **2026-04-24: Working_hours field is hardcoded.** The Excel has no working_hours column. The contact card always shows `א-ה, 08:00-17:00`.
 - **Demo runs on Telegram.** Phase 2 flips to WhatsApp via a single channel setting. Skills are channel-agnostic.
-- **Allowlist is hardcoded for v0.1.** Phase 2 uses phone-verified OTP against an NTA-maintained list.
 - **No persistence between sessions for the demo.** Memory clears after /end or 30-min idle. Each demo attendee gets a clean slate.
 - **Hebrew is non-negotiable for user-facing text.** This repo's *.md files are English for developer readability only.
-- **The agent is a router, not an AI.** Soul.md's CRITICAL: Personality Override is the wall against the default chatty Base44 personality. Don't soften it.
+- **Procedural answers only from documented sources.** PE-100 and PE-060 facts live in `docs/nta-procedures.md`. Other procedures → route to Hila.
