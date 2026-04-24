@@ -10,11 +10,18 @@ Auto-loaded into system prompt via .agents/rules/.
 This list contains the Telegram numeric user IDs allowed to use the bot during the demo.
 Any Telegram user not on this list receives the rejection message and cannot proceed.
 
+The list **ships empty on purpose**. The operator (Ofer) adds IDs after the bot is live by sending the agent a Hebrew command like `תוסיף את 123456789`. The agent updates this file via `write_file` and reloads.
+
 ```
 PERMITTED_TELEGRAM_IDS:
-  - PLACEHOLDER_USER_ID_1   # Hila Wechsberg (test user 1)
-  - PLACEHOLDER_USER_ID_2   # Test user 2 — fill in before Day 1 build
-  - PLACEHOLDER_USER_ID_3   # Test user 3 — fill in before Day 1 build
+  # empty — add IDs via "תוסיף את <id>" after install
+```
+
+When the operator sends an ID, the agent appends it under the comment. Example after one user is added:
+
+```
+PERMITTED_TELEGRAM_IDS:
+  - 123456789   # Ofer (added 2026-04-25)
 ```
 
 ---

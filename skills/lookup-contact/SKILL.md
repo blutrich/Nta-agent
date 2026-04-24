@@ -16,13 +16,14 @@ Phase 4 of the NTA agent flow. Fetches the contact from the Excel file and deliv
 
 1. Read `session.excel_contact_row` from Memory to determine which row to fetch
 2. Open `contacts.xlsx` from Knowledge files
-3. **Read by column position** — the file has no headers. See `docs/contacts-schema.md`. Columns are: A (0)=name, B (1)=division/line, C (2)=role, D (3)=email, E (4)=phone.
-4. Build the card fields: `contact_name=A`, `division_name=B`, `role=C`, `email=D`, `phone=E`. **There is no `working_hours` column** — use the default `א-ה, 08:00-17:00` for every card.
-5. Check that name, role, phone, email are non-empty
-6. If any of those fields are empty → use fallback (row 1, Hila)
-7. Format and send the contact card
-8. Send the "חזרה לתפריט הראשי" button
-9. Clear `session.current_flow` and `session.current_step` in Memory (ready for next topic)
+3. **Read by column position** — the file has no headers. Columns are: A (0)=name, B (1)=division/line, C (2)=role, D (3)=email, E (4)=phone. See `docs/contacts-schema.md`.
+4. **Row indexing is 0-based.** `session.excel_contact_row = 0` means the first data row in the file. The route-user table uses the same convention.
+5. Build the card fields: `contact_name=A`, `division_name=B`, `role=C`, `email=D`, `phone=E`. **There is no `working_hours` column** — use the default `א-ה, 08:00-17:00` for every card.
+6. Check that name, role, phone, email are non-empty
+7. If any of those fields are empty OR the row index is out of range → use fallback (row index 0, the first data row in whatever Excel was actually uploaded)
+8. Format and send the contact card
+9. Send the "חזרה לתפריט הראשי" button
+10. Clear `session.current_flow` and `session.current_step` in Memory (ready for next topic)
 
 ## Row Mapping (from route-user)
 
@@ -52,13 +53,29 @@ Use EXACTLY this template. No additions, no decorations, no paraphrasing.
 
 Followed immediately by one inline button: **חזרה לתפריט הראשי ↩**
 
-## Fallback Contact (Row 1 — Hila)
+## Fallback Contact (Row Index 0 — first data row in the actual Excel)
 
-When any field is missing or an empty row is returned, send this instead:
+When any field is missing or the requested row is out of range, fall back to the **first data row of contacts.xlsx** (row index 0). Whoever sits at that row becomes the fallback. The current Excel from Hila has Hadar Avniel at row 0; if Hila is moved to row 0 later, the fallback flips to Hila automatically.
+
+The card uses the same template as a normal lookup, prefixed with the apology line:
 
 ```
 לא מצאתי פרטי קשר ספציפיים לפנייה זו.
-ניתן לפנות ישירות למנהלת אגף רשויות מקומיות:
+ניתן לפנות ישירות לאגף רשויות מקומיות:
+
+📋 פרטי קשר — [division from row 0]
+
+👤 [name from row 0]
+🏢 [role from row 0]
+📞 [phone from row 0]
+📧 [email from row 0]
+🕐 שעות פעילות: א-ה, 08:00-17:00
+```
+
+If contacts.xlsx is unreachable entirely, send this hardcoded last-resort card (Hila's known details from Hila's email of April 17, 2026):
+
+```
+שירות התמיכה זמני אינו זמין. ניתן לפנות ישירות:
 
 📋 פרטי קשר — אגף רשויות מקומיות
 
