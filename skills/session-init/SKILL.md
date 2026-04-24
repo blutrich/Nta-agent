@@ -24,8 +24,15 @@ On every `/start` command or when the user sends a fresh greeting to the bot.
 
 ## Allowlist Check
 
-Read `allowlist.md` from rules/. Compare incoming `message.from.id` (integer) against
-the PERMITTED_TELEGRAM_IDS list.
+Read `allowlist.md` from rules/. The check has two modes:
+
+### OPEN_MODE: true (demo default)
+
+Skip the ID check entirely. Every Telegram user proceeds straight to greeting + menu.
+
+### OPEN_MODE: false (closed mode)
+
+Compare incoming `message.from.id` (integer) against the PERMITTED_TELEGRAM_IDS list.
 
 - Match → proceed
 - No match → send this exact message and stop:
@@ -35,6 +42,8 @@ the PERMITTED_TELEGRAM_IDS list.
 לפרטים ניתן לפנות להילה וקסברג, מנהלת אגף רשויות מקומיות.
 📞 050-403-7303
 ```
+
+When the operator wants to switch modes, they message the agent (e.g., "סגור את הבוט" → set OPEN_MODE: false; "פתח את הבוט" → set OPEN_MODE: true). The agent rewrites `allowlist.md` via write_file. No restart needed — Base44 reloads rules files every run.
 
 ## Session State (write to Memory)
 

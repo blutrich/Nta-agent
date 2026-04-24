@@ -5,46 +5,52 @@ Auto-loaded into system prompt via .agents/rules/.
 
 ---
 
-## Permitted Telegram User IDs
+## Mode
 
-This list contains the Telegram numeric user IDs allowed to use the bot during the demo.
-Any Telegram user not on this list receives the rejection message and cannot proceed.
+```
+OPEN_MODE: true
+```
 
-The list **ships empty on purpose**. The operator (Ofer) adds IDs after the bot is live by sending the agent a Hebrew command like `תוסיף את 123456789`. The agent updates this file via `write_file` and reloads.
+When `OPEN_MODE: true`, **every Telegram user is allowed**. The session-init skill skips the ID check entirely. This is the demo default — share the bot link freely with Hila, the CEO, anyone.
+
+When `OPEN_MODE: false`, only IDs in PERMITTED_TELEGRAM_IDS get through. Everyone else receives the rejection message.
+
+To close the bot back down, edit this file (via write_file) and set `OPEN_MODE: false`.
+
+---
+
+## Permitted Telegram User IDs (used only when OPEN_MODE is false)
 
 ```
 PERMITTED_TELEGRAM_IDS:
-  # empty — add IDs via "תוסיף את <id>" after install
+  # add IDs here when switching to closed mode
+  # format:
+  # - 123456789   # Name (added YYYY-MM-DD)
 ```
 
-When the operator sends an ID, the agent appends it under the comment. Example after one user is added:
-
-```
-PERMITTED_TELEGRAM_IDS:
-  - 123456789   # Ofer (added 2026-04-25)
-```
+When the operator sends `תוסיף את <id>`, the agent appends the ID here. Adding IDs does not automatically close the bot — `OPEN_MODE` must be set to `false` separately.
 
 ---
 
-## How To Find A Telegram User ID
+## How To Find A Telegram User ID (when running in closed mode)
 
-Option 1: Ask the user to message @userinfobot on Telegram. The bot replies with their numeric ID.
-Option 2: Use the Telegram Bot API: the `message.from.id` field in any incoming message is the user's numeric ID.
-Option 3: Ask Hila to share her Telegram ID by forwarding any message to @userinfobot.
-
----
-
-## How The Allowlist Check Works
-
-The session-init skill reads this file on every `/start`.
-It compares the incoming `message.from.id` (Telegram numeric ID) against the list.
-
-- Match found → proceed to greeting and menu
-- No match → send rejection message, terminate session
+- Message `@userinfobot` on Telegram → it replies with the numeric ID
+- Or, use the Telegram Bot API: the `message.from.id` field in any incoming message is the user's numeric ID
 
 ---
 
-## Rejection Message
+## How session-init Reads This File
+
+On every `/start`:
+
+1. If `OPEN_MODE: true` → proceed to greeting and menu (skip ID check)
+2. Else, compare incoming `message.from.id` against `PERMITTED_TELEGRAM_IDS`
+   - Match → proceed
+   - No match → send rejection message, terminate session
+
+---
+
+## Rejection Message (closed mode only)
 
 > הבוט נמצא בשלב פיילוט סגור.  
 > לפרטים ניתן לפנות להילה וקסברג, מנהלת אגף רשויות מקומיות.  
@@ -60,4 +66,4 @@ This file is replaced in Phase 2 with a proper authentication flow:
 - Bot checks the verified phone against the NTA-maintained municipality rep list
 - No hardcoded IDs — the list is pulled from the NTA system dynamically
 
-The allowlist.md file is a demo shortcut, not a production mechanism.
+The OPEN_MODE shortcut is for demo only. Do not ship to Phase 2 with OPEN_MODE: true.

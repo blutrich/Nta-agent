@@ -57,7 +57,7 @@ For each file in rules/, call write_file with path=.agents/rules/{filename} and 
 - menu-flows.md
 - guardrails.md
 - site-directory.md
-- allowlist.md  (leave PERMITTED_TELEGRAM_IDS empty — operator adds IDs later)
+- allowlist.md  (ships with OPEN_MODE: true — demo open to everyone, no ID check)
 
 Verify: Brain → Rules → Rules files shows count = 4. If the UI shows 0 but disk has 4, files were saved without registering — use the chat-based "create a custom rules file" command per file until the Brain count = 4.
 
@@ -101,26 +101,27 @@ After Step 6, send one message in this shape (real values only, no placeholders)
 - Rules: 4/4 ב-Brain
 - Knowledge: contacts.xlsx ({N} שורות), petah-tikva-map.png
 - Telegram: @{bot_username}
-- Allowlist: ריק — שלח לי את מזהה ה-Telegram המספרי שלך (מ-@userinfobot) ואוסיף אותך עכשיו
+- Allowlist: OPEN — כל אחד שמקבל את הקישור יכול להשתמש בבוט (לדמו)
 
 קישור לבוט: https://t.me/{bot_username}
 
-עד שתוסיף מזהים, כל מי ששולח /start יקבל הודעת דחייה. זה מכוון.
+לסגור את הבוט אחרי הדמו: שלח לי "סגור את הבוט" ואני אעדכן את allowlist.md ל-OPEN_MODE: false.
 ────
 
 ═══════════════════════════════════════════
-ADDING USERS LATER (no install, no restart needed)
+ACCESS CONTROL COMMANDS (no install, no restart needed)
 ═══════════════════════════════════════════
 
-When I send a numeric Telegram ID (e.g., "תוסיף את 123456789"), do this:
-1. Read .agents/rules/allowlist.md
-2. Append the ID to PERMITTED_TELEGRAM_IDS (write_file the new contents)
-3. Reply "✅ הוספתי {ID}. נסה /start עכשיו."
+The bot ships in OPEN_MODE — everyone can use it. The operator can switch modes anytime:
 
-When I send a username (e.g., "@oferblutrich"), explain:
-"Telegram לא חושף מזהים מספריים מ-username. שלח הודעה ל-@userinfobot ב-Telegram — הוא יחזיר מספר. שלח לי את המספר הזה ואני אוסיף אותך."
+- "סגור את הבוט" → set OPEN_MODE: false in allowlist.md (only listed IDs allowed)
+- "פתח את הבוט" → set OPEN_MODE: true (everyone allowed)
+- "תוסיף את 123456789" → append the ID to PERMITTED_TELEGRAM_IDS (only useful in closed mode)
+- "תוריד את 123456789" → remove the ID
 
-When I send a phone number, same thing — phones are not Telegram IDs.
+For all four: read allowlist.md, modify, write_file the new contents, reply with one ✅ line.
+
+If the operator sends a Telegram username (@something) or phone number instead of a numeric ID, explain that Telegram doesn't expose numeric IDs from usernames or phones — they need to message @userinfobot to get the numeric ID first.
 
 ═══════════════════════════════════════════
 ENFORCEMENT (the 4 rules that matter)

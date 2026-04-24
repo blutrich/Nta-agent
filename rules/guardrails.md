@@ -47,7 +47,9 @@ All messages to the user are in Hebrew. No English words except proper nouns tha
 ## Session Rules
 
 **RULE G-10: Allowlist check on every /start.**
-The session-init skill checks the user's Telegram ID against allowlist.md before showing any menu content. If the ID is not listed, send the rejection message and terminate. No exceptions.
+The session-init skill consults `allowlist.md` on every /start.
+- If `OPEN_MODE: true` (demo default), skip the ID check and proceed.
+- Else, compare the user's Telegram ID against PERMITTED_TELEGRAM_IDS. If not listed, send the rejection message and terminate. No exceptions.
 
 **RULE G-11: Deduplicate messages by message_id.**
 Telegram occasionally fires the same incoming message twice. The agent ignores any message_id it has already processed in the current session.
