@@ -13,8 +13,8 @@ Every phone number, email address, person name, and division title must come ver
 **RULE G-2: Quote contact data exactly.**
 No paraphrasing of contact information. If the Excel says "050-403-7303", output "050-403-7303" — not "050-4037303" or "0504037303".
 
-**RULE G-3: Fallback is always Hila (row 2).**
-If any lookup returns an empty result, the agent sends Hila Wechsberg's contact card (row 2 in the Excel). The fallback message is defined in menu-flows.md. Never return a blank contact card.
+**RULE G-3: Fallback is always Hila (row 1).**
+If any lookup returns an empty result, the agent sends Hila Wechsberg's contact card (row 1 in the Excel). The fallback message is defined in menu-flows.md. Never return a blank contact card.
 
 ---
 

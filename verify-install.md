@@ -132,11 +132,93 @@ Expected: fallback contact card with Hila's details + the "לא מצאתי פר�
 
 ---
 
+## Test 9 — Brain UI Registration
+
+The most-missed install failure: skills and rules saved to disk but never registered in the Brain UI. The bot looks installed but doesn't actually use them.
+
+```
+Open Brain → Integrations → Skills. How many skills are listed?
+Open Brain → Rules → Rules files. How many rules files are listed?
+Run: find /app/.agents/skills -type f | wc -l
+Run: find /app/.agents/rules -type f | wc -l
+```
+
+Expected:
+- Brain Skills count = 5 (matches disk count)
+- Brain Rules count = 4 (matches disk count)
+
+If Brain count = 0 but disk count > 0 → **Recovery 8** in RECOVERY-PROMPTS.md (most common failure).
+
+---
+
+## Test 10 — End-Of-Install Summary Present
+
+After Phase B autopilot finishes, the Phase C Summary message must include all 5 sections:
+
+1. **What's installed** — 5 skills, 4 rules files, knowledge file counts, Brain UI counts
+2. **What's connected** — Telegram bot username, allowlist count, tools permissions state
+3. **What's verified** — dry-run results per scenario (happy path, free-text guardrail, bad site number, topic 7, contact card accuracy)
+4. **What I can't do yet** — honest gaps (placeholder Telegram IDs, temp routing for topics 4-6, etc.)
+5. **Next steps** — review date, demo date, Phase 2 trigger
+
+If any section is missing or filled with `{placeholder}` text, send:
+
+```
+You forgot Phase C Summary or filled it with placeholders. Re-send it now with all 5 sections from BOOTSTRAP-PROMPT.md Phase C, using real data only. No "{X}" placeholders.
+```
+
+The Summary is the operator's only source of truth for what passed and what's gapped. Never ship an install without it.
+
+---
+
+## Common Issues
+
+### "Bot responds but doesn't know the menu Hebrew text"
+
+Rules files weren't registered in Brain — they're on disk but the runtime isn't loading them.
+→ **Recovery 8** (Brain UI registration)
+
+### "Bot answers free-text questions instead of re-prompting"
+
+soul.md didn't override the default Base44 personality. The default is chatty.
+→ **Recovery 1** (Agent is chatty / ignoring soul)
+
+### "Contact card phone number doesn't match the Excel"
+
+The agent is generating from LLM knowledge instead of reading the file. Critical guardrail break.
+→ **Recovery 5** (Agent inventing contact details)
+
+### "Allowlisted user gets the rejection message"
+
+Telegram IDs in allowlist.md are stored as strings instead of integers, or the IDs don't match what the user actually has.
+→ **Recovery 6** (Allowlist rejecting valid users)
+
+### "Map image works in test but not in real Telegram"
+
+petah-tikva-map.png isn't in Knowledge files, or Telegram is throttling image uploads.
+→ **Recovery 7** (Map image not sending)
+
+### "Bot responds normally but doesn't return to menu after contact card"
+
+`current_flow` and `current_step` aren't being cleared after delivery. Check lookup-contact's "Session Reset After Delivery" section.
+
+### "Two identical messages from one tap"
+
+Telegram fired the same webhook twice. The session-init skill should deduplicate by `message_id`. If it's not, check the deduplication step.
+
+### "Wrong site number returns the wrong contact"
+
+site-directory.md has wrong row_id mappings. Verify against `docs/contacts-schema.md` Critical Row Mappings table — rows 7 (Dor Nadel, Planning) and 8 (Tal Malka, Execution) are easy to swap.
+
+---
+
 ## Demo Readiness Checklist
 
 Before April 27:
 
-- [ ] All 7 tests pass
+- [ ] All 10 tests pass
+- [ ] Brain UI counts match disk counts (Test 9)
+- [ ] Phase C Summary received and all 5 sections filled (Test 10)
 - [ ] Full happy path (test 4) runs in under 45 seconds
 - [ ] Contact card data verified by Hila against actual Excel
 - [ ] 3 test Telegram users confirmed on allowlist

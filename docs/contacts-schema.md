@@ -46,14 +46,38 @@ Note: Rows 6 and 11 (קשרי קהילה) have placeholder emails (xxx@abc.co.il
 
 1. Skill receives `excel_contact_row` (integer) from session state
 2. Opens contacts.xlsx from Knowledge files
-3. Finds the row where `row_id == excel_contact_row`
-4. Reads the 6 fields listed above
-5. If row not found OR any required field empty → uses row 2 (Hila) as fallback
-6. Formats and sends the contact card template
+3. Finds the row where `row_id == excel_contact_row` (1-indexed: row 1 is the first data row, since the file has no header)
+4. Reads the 5 positional columns (A name, B division, C role, D email, E phone)
+5. If row not found OR name/role/phone/email is empty → uses **row 1 (Hila)** as fallback
+6. Formats and sends the contact card template (using `א-ה, 08:00-17:00` for working hours, since the column doesn't exist)
 
 ---
 
-## If Hila's Excel Uses Different Column Names
+## Critical Row Mappings
 
-Update lookup-contact/SKILL.md's column references to match the actual headers.
+These row IDs are referenced in `route-user/SKILL.md`, `lookup-contact/SKILL.md`, and `site-directory.md`:
+
+| Row | Who | Used For |
+|-----|-----|----------|
+| 1 | הילה וקסברג — מנהלת אגף רשויות מקומיות | **Fallback for all flows. Topic 7 forced.** |
+| 3 | זוהרה ישי — תיאום תשתיות ותוכניות גובלות | Topic 3 (development plans bordering metro). Temp routing for topics 4 + 5 until dedicated contacts added. |
+| 6 | דקלה אסרף — קשרי קהילה M2 | Topic 6 for M2 cities (incl. Petah Tikva) |
+| 7 | דור נדל — מנהל מערך תכנון M2 | Flow 2 (future M2 sites — תכנון/Infra1) |
+| 8 | טל מלכה — מנהל אגף הקמה M2 | Flow 1 (active M2 sites — AW/הקמה) |
+| 11 | איציק — קשרי קהילה M3 | Topic 6 for M3 cities |
+| 12 | רחלי ברגר — מנהלת אגף תכנון M3 | Flow 2 (future M3 sites) |
+| 13 | שני שקד — מנהלת אגף הקמה M3 | Flow 1 (active M3 sites — none in Petah Tikva yet) |
+
+---
+
+## If Hila's Excel Schema Changes
+
+If a future revision of contacts.xlsx adds headers, removes rows, or reorders columns:
+
+1. Update the "Actual Excel Column Schema" table above
+2. Update `lookup-contact/SKILL.md` column references (positional vs. named)
+3. Update the "Critical Row Mappings" table if row numbers shifted
+4. Re-verify `site-directory.md` row_ids point to the correct people
+5. Re-run `verify-install.md` Test 4 (happy path) end-to-end
+
 Do not rename Hila's columns — adapt the skill to her file.

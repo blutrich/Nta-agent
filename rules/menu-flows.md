@@ -131,7 +131,7 @@ Sent after greeting. Always 7 inline keyboard buttons.
 
 **Button:** המשך →
 
-**Contact card:** row 2 from Excel (Hila Wechsberg, always)
+**Contact card:** row 1 from Excel (Hila Wechsberg, always)
 
 ---
 

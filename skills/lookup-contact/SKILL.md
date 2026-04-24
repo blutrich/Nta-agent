@@ -16,24 +16,25 @@ Phase 4 of the NTA agent flow. Fetches the contact from the Excel file and deliv
 
 1. Read `session.excel_contact_row` from Memory to determine which row to fetch
 2. Open `contacts.xlsx` from Knowledge files
-3. Extract: division_name, contact_name, role, phone, email, working_hours
-4. Check that none of these fields are empty
-5. If any field is empty → use fallback (row 2, Hila)
-6. Format and send the contact card
-7. Send the "חזרה לתפריט הראשי" button
-8. Clear `session.current_flow` and `session.current_step` in Memory (ready for next topic)
+3. **Read by column position** — the file has no headers. See `docs/contacts-schema.md`. Columns are: A (0)=name, B (1)=division/line, C (2)=role, D (3)=email, E (4)=phone.
+4. Build the card fields: `contact_name=A`, `division_name=B`, `role=C`, `email=D`, `phone=E`. **There is no `working_hours` column** — use the default `א-ה, 08:00-17:00` for every card.
+5. Check that name, role, phone, email are non-empty
+6. If any of those fields are empty → use fallback (row 1, Hila)
+7. Format and send the contact card
+8. Send the "חזרה לתפריט הראשי" button
+9. Clear `session.current_flow` and `session.current_step` in Memory (ready for next topic)
 
 ## Row Mapping (from route-user)
 
-| Flow | Forced Row | Notes |
-|------|-----------|-------|
-| 1 (active site) | from site-directory.md lookup | varies by site |
-| 2 (future site) | from site-directory.md lookup | varies by site |
-| 3 (development plan) | Row 3 | Infrastructure Coordination |
-| 4 (environment) | env row (TBD from Hila's Excel) | fallback to row 2 if empty |
-| 5 (traffic signage) | traffic row (TBD) | fallback to row 2 if empty |
-| 6 (public outreach) | outreach row (TBD) | fallback to row 2 if empty |
-| 7 (other) | Row 2 | Always Hila — forced |
+| Flow | Row | Notes |
+|------|-----|-------|
+| 1 (active site) | from site-directory.md lookup | varies by site (M2 active sites → row 8 Tal Malka) |
+| 2 (future site) | from site-directory.md lookup | varies by site (M2 future → row 7 Dor Nadel; M3 future → row 12 Racheli Berger) |
+| 3 (development plan) | 3 | Zohara Yishai — Infrastructure Coordination |
+| 4 (environment) | 3 (temp) | Routes to Zohara until dedicated env contact added |
+| 5 (traffic signage) | 3 (temp) | Routes to Zohara until dedicated signage contact added |
+| 6 (public outreach) | 6 (M2) or 11 (M3) | Dikla Asraf or Itzik per metro line |
+| 7 (other) | 1 | Always Hila — forced |
 
 ## Contact Card Format
 
@@ -51,7 +52,7 @@ Use EXACTLY this template. No additions, no decorations, no paraphrasing.
 
 Followed immediately by one inline button: **חזרה לתפריט הראשי ↩**
 
-## Fallback Contact (Row 2 — Hila)
+## Fallback Contact (Row 1 — Hila)
 
 When any field is missing or an empty row is returned, send this instead:
 

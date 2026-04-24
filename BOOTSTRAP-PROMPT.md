@@ -59,25 +59,38 @@ STEP 3 — SET IDENTITY
 Read identity.md. Set your name, display name, avatar description, personality, communication style.
 Persist via update_identity.
 
-STEP 4 — INSTALL RULES FILES (write_file only)
-For each file in rules/, call write_file with path=.agents/rules/{filename}:
+STEP 4 — INSTALL RULES FILES (write_file only, then verify Brain)
+Base44 auto-loads every file under `.agents/rules/` into the system prompt on each run. That is why these live in `rules/`, not `knowledge/` — the name is the load contract.
+For each file in rules/, call write_file with path=.agents/rules/{filename} and content=verbatim file body:
 - menu-flows.md
 - guardrails.md
 - site-directory.md
 - allowlist.md
 
-Then update allowlist.md with the 3 real Telegram user IDs from my answers.
-Verify by opening Files panel — all 4 files must appear under .agents/rules/.
+Then update allowlist.md with the 3 real Telegram user IDs from my answers (write_file with the new contents — never edit in place via bash).
 
-STEP 5 — INSTALL SKILLS (folder format, write_file only)
-For each skill folder in skills/, call write_file with path=.agents/skills/{name}/SKILL.md:
+VERIFY (two-step, both required):
+- Files panel: all 4 files appear under .agents/rules/
+- Brain → Rules → Rules files UI tab: shows count of 4 (or more, if Hila uploaded extras). Files-on-disk presence is NOT the same as registration in Brain. If the Brain UI shows 0, the agent saved files but didn't register them — fall back to chat-based "create a custom rules file" command per file.
+
+STEP 5 — INSTALL SKILLS (folder format, write_file only, then verify Brain)
+Base44 Superagent skills are FOLDERS containing a single SKILL.md with YAML frontmatter. Verified against base44-dev/apper production skills.
+For each of the 5 skill folders in the repo's skills/:
+1. Read skills/{name}/SKILL.md from the clone
+2. Call write_file with path=.agents/skills/{name}/SKILL.md and content=verbatim body (frontmatter already present)
+3. Do NOT create scripts/ subfolders. Do NOT create .sh/.py/.js files. Do NOT flatten to loose .md at .agents/skills/ root.
+
+Skills to install (all 5):
 - session-init
 - route-user
 - show-map
 - lookup-contact
 - handle-unknown
 
-Verify: find /app/.agents/skills -type f → expect exactly 5 SKILL.md files.
+VERIFY (two-step, both required):
+- Disk: `find /app/.agents/skills -type f` → exactly 5 SKILL.md paths and nothing else
+- Brain → Integrations → Skills UI tab: count = 5. If the UI shows 0 but the files exist on disk, the agent wrote files without registering them. Fall back to chat-based "create a custom skill named X with this body: [paste]" per skill, then re-check the Brain UI count.
+- Smoke test: `run_skill session-init` must return the SKILL.md body without "no executable script" errors.
 
 STEP 6 — UPLOAD KNOWLEDGE FILES
 Upload contacts.xlsx (from my reply) to Knowledge files.
@@ -114,41 +127,61 @@ Show every message the bot would send. Confirm all Hebrew text matches menu-flow
 Confirm the contact card pulls from contacts.xlsx (or shows the fallback if the Excel isn't yet populated).
 
 ═══════════════════════════════════════════
-PHASE C — SUMMARY
+PHASE C — SUMMARY (final message, 5 sections, mandatory)
 ═══════════════════════════════════════════
 
-After the dry run, send one summary message:
+After the dry run, send exactly ONE final message with these five sections in this order. Fill in real data from the install — never placeholders. The Summary is the trust-builder; never skip it.
 
 ────
 ## Install complete ✅
 
 ### What's installed
-- 5 skills: session-init, route-user, show-map, lookup-contact, handle-unknown
-- 4 rules files: menu-flows.md, guardrails.md, site-directory.md, allowlist.md
-- Knowledge files: contacts.xlsx [yes/no], petah-tikva-map.png [yes/no]
-- Telegram bot connected: [yes/no, bot username]
-- Allowlist: 3 user IDs loaded [yes/no]
+- 5 skills in .agents/skills/: session-init, route-user, show-map, lookup-contact, handle-unknown
+- 4 rules files in .agents/rules/ (auto-loaded into system prompt every run): menu-flows.md, guardrails.md, site-directory.md, allowlist.md
+- Knowledge files: contacts.xlsx {yes/no, row count}, petah-tikva-map.png {yes/no}
+- Brain UI: Skills count = {N}, Rules count = {N} (must match disk)
 
-### What's blocked (needs from Hila)
-- contacts.xlsx rows for topics 4, 5, 6 (environment, traffic, outreach)
-- Real site numbers for Petah Tikva (site-directory.md uses placeholder data)
-- Hila's Telegram user ID for the allowlist
+### What's connected
+- Telegram bot: @{bot_username} ({connected/failed})
+- Allowlist: {N}/3 user IDs loaded — IDs: {comma-separated list}
+- Tools permissions: Update OFF, Delete OFF, Connector Rule applied: {yes/no}
 
-### Next steps
-1. Hila reviews demo on April 26
+### What's verified (dry-run results)
+- Happy path (option 2 → site 10 → המשך): {pass/fail}
+- Free-text guardrail (off-topic question → menu re-prompt): {pass/fail}
+- Bad site number (e.g., "99") → re-send map: {pass/fail}
+- Topic 7 → Hila row 1 fallback: {pass/fail}
+- Contact card data matches contacts.xlsx verbatim: {pass/fail with row checked}
+
+### What I can't do yet (honest gaps)
+- {gap 1 — e.g., Hila's Telegram ID still placeholder; demo will reject her until updated}
+- {gap 2 — e.g., topics 4/5/6 routing to Zohara as temp until dedicated contacts added}
+- {gap 3 — e.g., rows 6/11 emails are xxx@abc.co.il in the Excel}
+- {any failed verify test from Phase B Step 10}
+
+### Next steps for the operator (Ofer)
+1. Hila reviews demo on April 26 — share Telegram bot link
 2. Demo to CEO on April 27
-3. CEO approval → Phase 2 (WhatsApp + 23 more cities)
+3. CEO approval → Phase 2 (WhatsApp channel flip + 23 more cities)
+
+To re-run any verify test, send: "Run verify-install.md test {N}"
+To recover from a known failure, see RECOVERY-PROMPTS.md
 ────
 
 ═══════════════════════════════════════════
 ENFORCEMENT
 ═══════════════════════════════════════════
 
-- If you catch yourself using bash cat>/cp/echo> for any file under .agents/, STOP and use write_file.
-- If you catch yourself about to answer a user question from LLM knowledge, STOP and re-prompt with the menu.
-- If you catch yourself writing chatty warmup text ("בשמחה! כמובן!"), STOP and use the template from menu-flows.md.
-- If any step fails, log the specific error and continue. Only stop if Telegram connection fails entirely.
-- Do not ask "shall I continue?" between steps. You already have authorization for all 10 steps.
+- If you catch yourself using bash `cat >`, `cp`, `echo >`, or any shell redirect for any file under .agents/, STOP and use write_file. Bash writes are ephemeral and vanish on restart.
+- If you catch yourself reporting "skills installed" because files exist on disk WITHOUT verifying Brain → Integrations → Skills shows the correct count, STOP. Disk presence ≠ Brain registration. Re-verify the Brain UI.
+- If you catch yourself about to answer a user question from LLM knowledge (timelines, NTA policy, who works at NTA), STOP and re-prompt with the menu.
+- If you catch yourself generating a phone number, email, or person name not from contacts.xlsx, STOP and use the Hila row 1 fallback.
+- If you catch yourself writing chatty warmup text ("בשמחה!", "כמובן!", "שאלה מצוינת!", "בהחלט!"), STOP and use the template from menu-flows.md.
+- If you catch yourself answering in English to a Telegram user, STOP. All user-facing text is Hebrew. English is for this repo's developer-facing files only.
+- If you catch yourself about to say "shall I proceed?", "should I continue?", "let me know if...", or any pause request between Steps 1-10, STOP. You already have authorization for all 10 steps. Only acceptable status lines are short "✅ Step N done" markers.
+- If you catch yourself about to skip Phase C Summary, STOP. The Summary is mandatory. Without it, the operator can't tell what passed, what failed, or what's gapped.
+- If any non-Telegram step fails, log the specific error and continue to the next step. Only stop if Telegram connection fails entirely (that is a blocker).
+- Do not auto-send any Telegram message during install. The dry-run in Step 10 stays in chat. First real Telegram message happens when an allowlisted user sends /start.
 
 Start Phase A now. Send the 4 questions. Then wait.
 ```

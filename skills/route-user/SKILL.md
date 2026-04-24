@@ -20,15 +20,17 @@ When the user taps one of the 7 menu buttons, or sends a number 1-7 while in the
 
 ## Routing Table
 
-| Input | Sets current_flow | Next skill |
-|-------|------------------|-----------|
-| 1 | "active-site" | show-map |
-| 2 | "future-site" | show-map |
-| 3 | "development-plan" | lookup-contact (row 3) |
-| 4 | "environment" | lookup-contact (env row) |
-| 5 | "traffic-signage" | lookup-contact (traffic row) |
-| 6 | "public-outreach" | lookup-contact (outreach row) |
-| 7 | "other" | lookup-contact (row 2 = Hila, forced) |
+| Input | Sets current_flow | Next skill | Excel row |
+|-------|------------------|-----------|-----------|
+| 1 | "active-site" | show-map → lookup-contact | varies (from site-directory.md) |
+| 2 | "future-site" | show-map → lookup-contact | varies (from site-directory.md) |
+| 3 | "development-plan" | lookup-contact | 3 (Zohara Yishai — Infrastructure Coordination) |
+| 4 | "environment" | lookup-contact | 3 (Zohara Yishai — temporary, until env contact added) |
+| 5 | "traffic-signage" | lookup-contact | 3 (Zohara Yishai — temporary) |
+| 6 | "public-outreach" | lookup-contact | 6 (Dikla Asraf — M2 community liaison; or 11 for M3) |
+| 7 | "other" | lookup-contact | 1 (Hila Wechsberg, forced fallback) |
+
+**Note:** Topics 4 and 5 currently route to row 3 (Zohara Yishai) per `docs/nta-procedures.md` — Hila to confirm dedicated contacts before Phase 2. Topic 6 picks row 6 vs 11 based on which line the user's city is on (M2 → 6, M3 → 11). For Petah Tikva demo (M2-only), use row 6.
 
 ## Free Text Handling
 
