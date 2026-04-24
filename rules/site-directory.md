@@ -8,39 +8,50 @@ In Phase 2, add a section per city, loaded based on session city.
 
 ---
 
-## Petah Tikva — Active Sites (Flow 1)
+## פתח תקווה — אתרים פעילים (זרימה 1) — עבודות AW בביצוע
 
-| Site # | Site Name | Metro Line | Phase | Excel Contact Row | Notes |
-|--------|-----------|-----------|-------|-------------------|-------|
-| 2 | סירקין צפון | M2 | ביצוע | Row 8 | M2 Execution Division |
-| 3 | סירקין דרום | M2 | ביצוע | Row 8 | M2 Execution Division |
-| 5 | קפלן | M2 | ביצוע | Row 8 | M2 Execution Division |
+| מס׳ אתר | שם האתר | קו | AW התחלה | AW סיום | row_id איש קשר | הערות |
+|---------|---------|-----|---------|--------|--------------|-------|
+| 1 | Kfar Ganim (LS) | M2 | 01/04/2026 | 01/09/2027 | 7 | טל מלכה — מנהל אגף הקמה M2 |
+| 2 | Ben Gurion | M2 | 01/09/2026 | 01/09/2028 | 7 | טל מלכה — מנהל אגף הקמה M2 |
+| 3 | Arlozorov | M2 | 01/05/2026 | 01/10/2027 | 7 | טל מלכה — מנהל אגף הקמה M2 |
+| 4 | Petah Tikva City Hall | M2 | 01/09/2026 | 01/07/2027 | 7 | טל מלכה — מנהל אגף הקמה M2 |
+| 5 | Petah Tikva East (LS) | M2 | 01/09/2026 | 01/09/2028 | 7 | טל מלכה — מנהל אגף הקמה M2 |
+| 6 | Petah Tikva East | M2 | 01/05/2026 | 01/05/2027 | 7 | טל מלכה — מנהל אגף הקמה M2 |
+| 7 | Segula Depot | M2 | 01/04/2025 | 31/12/2028 | 8 | טל מלכה — מנהל אגף הקמה M2 |
 
-## Petah Tikva — Future Sites (Flow 2)
+## פתח תקווה — אתרים עתידיים (זרימה 2) — אינפרא 1 טרם החל
 
-| Site # | Site Name | Metro Line | Phase | Excel Contact Row | Notes |
-|--------|-----------|-----------|-------|-------------------|-------|
-| 10 | בילינסון | M3 | תכנון | Row 12 | M3 Planning Division |
-| 11 | קניון הגדול | M3 | תכנון | Row 12 | M3 Planning Division |
-| 12 | מרכז העיר | M3 | תכנון | Row 12 | M3 Planning Division |
+| מס׳ אתר | שם האתר | קו | Infra1 התחלה | Infra1 סיום | row_id איש קשר | הערות |
+|---------|---------|-----|------------|------------|--------------|-------|
+| 10 | Sirkin South | M2 | 01/01/2029 | 01/09/2034 | 7 | דור נדל — מנהל מערך תכנון M2 |
+| 11 | Sirkin North | M2 | 15/01/2029 | 01/09/2034 | 7 | דור נדל — מנהל מערך תכנון M2 |
+| 12 | Segula Industrial Park | M2 | 15/01/2029 | 01/03/2033 | 7 | דור נדל — מנהל מערך תכנון M2 |
+| 20 | Kfar Ganim (M3 Station) | M3 | 15/07/2028 | 20/02/2032 | 12 | רחלי ברגר — מנהלת אגף תכנון M3 |
+| 21 | Soroka Belinson Hospital | M3 | 01/01/2029 | 30/07/2033 | 12 | רחלי ברגר — מנהלת אגף תכנון M3 |
+| 22 | Kiryat Arye Industrial Area | M3 | 01/01/2029 | 30/03/2033 | 12 | רחלי ברגר — מנהלת אגף תכנון M3 |
+| 23 | Kiryat Arye Stadium | M3 | 01/01/2029 | 30/12/2032 | 12 | רחלי ברגר — מנהלת אגף תכנון M3 |
 
 ---
 
 ## Lookup Logic
 
-1. User sends site number (e.g., "10")
-2. Agent checks current flow context (Flow 1 = active, Flow 2 = future)
+1. User sends site number (e.g., "21")
+2. Agent checks current flow context (Flow 1 = active/AW, Flow 2 = future/Infra1)
 3. Agent looks up this table for a matching row
-4. If found → use the Excel Contact Row to fetch contact from contacts.xlsx
+4. If found → use the row_id to fetch contact from contacts.xlsx
 5. If NOT found → send the "site not found" error message from menu-flows.md, re-send map
 
----
+## Contact Row Reference (contacts.xlsx)
 
-## PLACEHOLDER NOTE
+| row_id | Name | Role |
+|--------|------|------|
+| 1 | הילה וקסברג | מנהלת אגף רשויות מקומיות (Fallback) |
+| 3 | זוהרה ישי | מנהלת אגף תיאום תשתיות ותוכניות גובלות |
+| 7 | טל מלכה | מנהל אגף הקמה M2 (active M2 sites) |
+| 8 | דור נדל | מנהל מערך תכנון M2 (future M2 sites) |
+| 9 | לאה שמול | מנהלת קו M3 |
+| 12 | רחלי ברגר | מנהלת אגף תכנון M3 (future M3 sites) |
+| 13 | שני שקד | מנהלת אגף הקמה M3 (active M3 sites) |
 
-This file uses placeholder data for the demo.
-Hila must supply the actual site list from her Excel before Day 1 build starts.
-Replace this entire table with real data when received.
-
-The Excel row numbers (Row 8, Row 12) are also placeholders — they reference Hila's
-contacts Excel row numbering. Update when the actual Excel file is received.
+Source: contacts Excel provided by Hila Wechsberg (April 24, 2026) + Metro Gantt Stage A Final.
