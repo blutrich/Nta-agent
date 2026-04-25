@@ -78,9 +78,7 @@ Nta-agent/
 
 1. Create a new Base44 Superagent
 2. Paste `BOOTSTRAP-PROMPT.md` verbatim into the chat
-3. Reply to the 4 setup questions:
-   - Telegram bot token (from BotFather)
-   - 3 Telegram user IDs for demo access
+3. Reply with the 2 files (Telegram is connected through Base44's native integration — no BotFather token, no user IDs upfront):
    - `contacts.xlsx` (upload)
    - `petah-tikva-map.png` (upload)
 4. Wait for the 10 ✅ install markers
@@ -95,7 +93,7 @@ If anything breaks mid-install, see `RECOVERY-PROMPTS.md`.
 | What | Why it's needed | Required for demo |
 |---|---|---|
 | Base44 Superagent | Runtime | Yes |
-| Telegram bot (BotFather) | Channel | Yes |
+| Telegram (Base44 native integration) | Channel — connected from Settings → Channels, no token needed | Yes |
 | `contacts.xlsx` | Source of truth for all contact cards | Yes |
 | `petah-tikva-map.png` | Site map for topics 1 + 2 | Yes |
 | WhatsApp (Base44 native) | Phase 2 channel | Phase 2 only |

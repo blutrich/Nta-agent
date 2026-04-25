@@ -117,8 +117,8 @@ If Brain UI count is 0 but disk count is right, see RECOVERY-PROMPTS.md Recovery
 
 1. Operator (Ofer) creates a new Base44 Superagent
 2. Pastes `BOOTSTRAP-PROMPT.md` verbatim into the chat
-3. Answers the 4 setup questions (bot name, Telegram token, Hila's Excel file, 3 test user IDs)
-4. Watches 10 ✅ markers run
+3. Uploads the 2 files (contacts.xlsx + petah-tikva-map.png). Telegram is connected via Base44's native integration — no BotFather token. Allowlist ships in OPEN_MODE so no user IDs are needed upfront.
+4. Watches the ✅ markers run
 5. Runs `verify-install.md` test checklist
 6. Shares the Telegram bot link with Hila for pre-demo review (April 26)
 7. Demo runs April 27
@@ -128,7 +128,7 @@ If Brain UI count is 0 but disk count is right, see RECOVERY-PROMPTS.md Recovery
 | Dependency | Purpose | Demo Required | Fallback |
 |---|---|---|---|
 | Base44 Superagent | Runtime | Yes | None |
-| Telegram Bot (BotFather) | Channel | Yes | None |
+| Telegram (Base44 native integration) | Channel — connected via Settings → Channels, no token | Yes | None |
 | contacts.xlsx | Source of truth for all contact cards | Yes | None |
 | petah-tikva-map.png | Site map for topics 1+2 | Yes | Text list of sites |
 | WhatsApp (Base44 native) | Phase 2 channel | No | — |

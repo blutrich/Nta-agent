@@ -49,9 +49,9 @@ Do NOT use bash. write_file only.
 Symptom: /start to the bot returns no response.
 
 ```
-Check Settings → Channels → Telegram. Confirm the token is pasted correctly (no extra spaces).
-If the token is correct, disconnect and reconnect.
-If the bot username conflicts with an existing bot, create a new one via BotFather and use that token instead.
+Check Settings → Channels → Telegram. Base44 has a native Telegram integration — no BotFather token required.
+Disconnect and reconnect from Settings → Channels → Telegram.
+If the connection still fails, check that no other Base44 agent on this account is already bound to the same Telegram bot.
 ```
 
 ---
@@ -171,7 +171,7 @@ My Soul, Identity, Telegram, and Knowledge files are already correct. Only skill
 1. In Base44 → Superagents → your Superagent → Settings → Danger Zone → Delete this agent
 2. Create a new Superagent
 3. Re-paste the latest BOOTSTRAP-PROMPT.md from the repo
-4. Re-supply the 4 setup answers (token, IDs, Excel, map)
+4. Re-upload the 2 files (contacts.xlsx, petah-tikva-map.png). Telegram reconnects via Base44's native integration — no token. Allowlist ships open.
 
 Only do Option B if Option A fails repeatedly.
 

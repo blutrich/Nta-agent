@@ -4,6 +4,8 @@ The exact message Ofer pastes into a new Base44 Superagent to install the NTA Lo
 
 This bootstrap is intentionally short. The allowlist is **left empty on purpose** — Ofer adds Telegram IDs after the bot is live (see "Adding users" below).
 
+Telegram is connected through Base44's native Telegram integration — **no BotFather token needed**. Ofer just clicks "Connect Telegram" in Settings → Channels.
+
 ---
 
 ## The Install Message (paste verbatim into a new Superagent)
@@ -22,21 +24,21 @@ Hard rules:
 - Skills are FOLDERS at .agents/skills/{name}/SKILL.md — never loose .md, never scripts.
 
 ═══════════════════════════════════════════
-PHASE A — ASK ME FOR 3 THINGS, THEN WAIT
+PHASE A — ASK ME FOR 2 FILES, THEN WAIT
 ═══════════════════════════════════════════
 
 Send exactly this message and wait:
 
 ────
-היי! אני מתקין את הבוט של אגף רשויות מקומיות. אני צריך 3 דברים:
+היי! אני מתקין את הבוט של אגף רשויות מקומיות. אני צריך 2 קבצים:
 
-1. טוקן בוט Telegram (מ-BotFather)
-2. contacts.xlsx — העלאה ישירה כאן
-3. petah-tikva-map.png — העלאה ישירה כאן
+1. contacts.xlsx — העלאה ישירה כאן
+2. petah-tikva-map.png — העלאה ישירה כאן
 
-שלח את שלושתם בהודעה אחת ואתחיל.
+שלח את שניהם בהודעה אחת ואתחיל.
 
-(אל תדאג למזהי משתמשים — הבוט מותקן ריק, ואחרי שהוא חי תוסיף את המזהה שלך בפקודה אחת.)
+(את Telegram אני מחבר דרך החיבור המובנה של Base44 — לא צריך טוקן מ-BotFather.
+ואל תדאג למזהי משתמשים — הבוט מותקן פתוח לכולם, ואפשר לסגור אחר כך בפקודה אחת.)
 ────
 
 Wait for my reply. Do not start installing.
@@ -78,9 +80,10 @@ STEP 4 — UPLOAD KNOWLEDGE FILES
 Upload contacts.xlsx and petah-tikva-map.png to Brain → Knowledge → Knowledge files.
 Open contacts.xlsx and tell me back: how many rows of data, and what is row index 0 (first data row) — name and phone. This is the row that becomes the fallback for empty topics and for topic 7.
 
-STEP 5 — CONNECT TELEGRAM
-Settings → Channels → Telegram → paste my token → Connect Bot.
-Report the bot username (e.g., @Netalocalbot).
+STEP 5 — CONNECT TELEGRAM (native Base44 connection, no token)
+Settings → Channels → Telegram → Connect.
+Base44's native Telegram integration handles the bot creation automatically — no BotFather token required.
+Report the bot username (e.g., @Netalocalbot) and the public link.
 
 STEP 6 — TOOLS PERMISSIONS
 Settings → Tools Permission:
@@ -132,7 +135,7 @@ ENFORCEMENT (the 4 rules that matter)
 3. Never invent contact details from LLM knowledge. Always read contacts.xlsx by row index. Empty row → fallback to row index 0.
 4. No "shall I continue?" between steps. You have authorization for all 6.
 
-Start Phase A now. Send the 3 questions in Hebrew. Then wait.
+Start Phase A now. Send the 2-file request in Hebrew. Then wait.
 ```
 
 ---
@@ -141,7 +144,8 @@ Start Phase A now. Send the 3 questions in Hebrew. Then wait.
 
 This bootstrap is roughly half the size of the prior one. Cuts:
 
-- **Telegram IDs are no longer requested upfront.** They were the biggest source of friction in the first install — Ofer kept sending phone numbers and usernames. Now the bot installs empty and Ofer adds IDs in plain Hebrew after the fact.
+- **No more BotFather token.** Base44 has a native Telegram integration that handles bot creation in one click. Ofer just connects Telegram from Settings → Channels.
+- **Telegram IDs are no longer requested upfront.** They were the biggest source of friction in the first install — Ofer kept sending phone numbers and usernames. Now the bot installs open to everyone, and Ofer adds IDs in plain Hebrew after the fact (only relevant for closed mode).
 - **Session-timeout task removed.** Premature for the demo. Add it post-demo if needed.
 - **Dry-run scenarios removed.** The operator runs `/start` from real Telegram instead.
 - **Phase C is one short paragraph, not a 5-section template.**
